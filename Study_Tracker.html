@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GPSC Study Tracker</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Inter,Arial,sans-serif;
+    background:#f4f6fb;
+    color:#172033;
+}
+
+/* HEADER */
+
+.header{
+    background:linear-gradient(135deg,#172554,#2563eb);
+    color:white;
+    padding:20px 35px;
+}
+
+.header-content{
+    max-width:1250px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.header h1{
+    margin:0;
+    font-size:24px;
+}
+
+.header p{
+    margin:5px 0 0;
+    opacity:.8;
+    font-size:13px;
+}
+
+.badge-live{
+    background:rgba(255,255,255,.15);
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:13px;
+}
+
+/* MAIN */
+
+.container{
+    width:94%;
+    max-width:1250px;
+    margin:25px auto;
+}
+
+/* UPLOAD */
+
+.upload-card{
+    background:white;
+    border-radius:16px;
+    padding:45px;
+    text-align:center;
+    box-shadow:0 5px 25px rgba(0,0,0,.06);
+}
+
+.upload-icon{
+    font-size:55px;
+    margin-bottom:15px;
+}
+
+.upload-card h2{
+    margin:0 0 10px;
+}
+
+.upload-card p{
+    color:#667085;
+}
+
+.file-input{
+    margin-top:20px;
+    padding:13px;
+    width:100%;
+    max-width:500px;
+    border:1px solid #d0d5dd;
+    border-radius:9px;
+}
+
+/* QUIZ LAYOUT */
+
+.quiz-layout{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:20px;
+}
+
+/* QUESTION CARD */
+
+.question-card{
+    background:white;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 5px 25px rgba(0,0,0,.06);
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    box-shadow:0 3px 12px rgba(0,0,0,.05);
+}
+
+.stat-label{
+    color:#667085;
+    font-size:12px;
+}
+
+.stat-value{
+    font-size:19px;
+    font-weight:700;
+    margin-top:5px;
+}
+
+/* QUESTION HEADER */
+
+.question-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.q-number{
+    font-size:15px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+.q-time{
+    font-size:13px;
+    color:#667085;
+}
+
+/* PROGRESS */
+
+.progress{
+    height:7px;
+    background:#e5e7eb;
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:25px;
+}
+
+.progress-bar{
+    height:100%;
+    background:#2563eb;
+    transition:.3s;
+}
+
+/* QUESTION */
+
+.question{
+    font-size:21px;
+    line-height:1.6;
+    font-weight:700;
+    margin-bottom:25px;
+}
+
+/* META */
+
+.meta{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.meta span{
+    padding:5px 10px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+}
+
+/* OPTIONS */
+
+.option{
+    border:2px solid #e5e7eb;
+    border-radius:11px;
+    padding:15px;
+    margin-bottom:12px;
+    cursor:pointer;
+    transition:.2s;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.option:hover{
+    border-color:#93c5fd;
+    background:#f8fbff;
+}
+
+.option.selected{
+    border-color:#2563eb;
+    background:#eff6ff;
+}
+
+.option.correct{
+    border-color:#16a34a;
+    background:#dcfce7;
+}
+
+.option.wrong{
+    border-color:#dc2626;
+    background:#fee2e2;
+}
+
+.option-letter{
+    width:34px;
+    height:34px;
+    min-width:34px;
+    border-radius:50%;
+    background:#eef0f4;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+
+.selected .option-letter{
+    background:#2563eb;
+    color:white;
+}
+
+.correct .option-letter{
+    background:#16a34a;
+    color:white;
+}
+
+.wrong .option-letter{
+    background:#dc2626;
+    color:white;
+}
+
+/* EXPLANATION */
+
+.explanation{
+    margin-top:20px;
+    padding:15px;
+    background:#f8fafc;
+    border-left:4px solid #2563eb;
+    border-radius:7px;
+    line-height:1.6;
+    display:none;
+}
+
+/* BUTTONS */
+
+.actions{
+    display:flex;
+    justify-content:space-between;
+    margin-top:25px;
+    gap:10px;
+}
+
+button{
+    border:0;
+    border-radius:9px;
+    padding:12px 20px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.primary{
+    background:#2563eb;
+    color:white;
+}
+
+.success{
+    background:#16a34a;
+    color:white;
+}
+
+.secondary{
+    background:#64748b;
+    color:white;
+}
+
+.danger{
+    background:#dc2626;
+    color:white;
+}
+
+/* QUESTION PALETTE */
+
+.palette-card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 5px 25px rgba(0,0,0,.06);
+}
+
+.palette-card h3{
+    margin-top:0;
+}
+
+.palette{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+}
+
+.palette button{
+    padding:9px 4px;
+    background:#f1f5f9;
+    color:#334155;
+}
+
+.palette button.current{
+    background:#2563eb;
+    color:white;
+}
+
+.palette button.correct{
+    background:#16a34a;
+    color:white;
+}
+
+.palette button.wrong{
+    background:#dc2626;
+    color:white;
+}
+
+.palette button.skipped{
+    background:#f59e0b;
+    color:white;
+}
+
+/* RESULT */
+
+.result-card{
+    background:white;
+    border-radius:16px;
+    padding:35px;
+    box-shadow:0 5px 25px rgba(0,0,0,.06);
+}
+
+.result-title{
+    text-align:center;
+}
+
+.result-score{
+    font-size:52px;
+    font-weight:800;
+    color:#2563eb;
+    margin:10px 0;
+}
+
+.result-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin:30px 0;
+}
+
+.result-box{
+    background:#f8fafc;
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+}
+
+.result-box h2{
+    margin:0 0 6px;
+}
+
+.result-box p{
+    margin:0;
+    color:#667085;
+    font-size:13px;
+}
+
+/* HIDDEN */
+
+.hidden{
+    display:none!important;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .quiz-layout{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .result-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    .header{
+        padding:18px;
+    }
+
+    .header-content{
+        align-items:flex-start;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .question{
+        font-size:18px;
+    }
+
+    .result-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+<div class="header-content">
+
+<div>
+<h1>📚 GPSC Study Tracker</h1>
+<p>MCQ Practice & Performance Analysis</p>
+</div>
+
+<div class="badge-live">
+● Practice Mode
+</div>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- UPLOAD -->
+
+<div id="uploadCard" class="upload-card">
+
+<div class="upload-icon">📥</div>
+
+<h2>Upload Your MCQ Question Bank</h2>
+
+<p>
+Upload Excel file and start solving immediately.
+</p>
+
+<input
+type="file"
+id="excelFile"
+class="file-input"
+accept=".xlsx,.xls"
+/>
+
+<div id="uploadStatus"></div>
+
+</div>
+
+
+<!-- QUIZ -->
+
+<div id="quizArea" class="hidden">
+
+
+<!-- STATS -->
+
+<div class="stats">
+
+<div class="stat">
+<div class="stat-label">Duration</div>
+<div class="stat-value" id="duration">00:00</div>
+</div>
+
+<div class="stat">
+<div class="stat-label">Time Elapsed</div>
+<div class="stat-value" id="elapsed">00:00</div>
+</div>
+
+<div class="stat">
+<div class="stat-label">Avg. Time / Question</div>
+<div class="stat-value" id="avgTime">00:00</div>
+</div>
+
+<div class="stat">
+<div class="stat-label">Score</div>
+<div class="stat-value" id="score">0</div>
+</div>
+
+</div>
+
+
+<div class="quiz-layout">
+
+
+<!-- QUESTION -->
+
+<div class="question-card">
+
+<div class="question-header">
+
+<div class="q-number" id="qNumber">
+Question 1 / 100
+</div>
+
+<div class="q-time">
+Question Time:
+<span id="questionTime">00:00</span>
+</div>
+
+</div>
+
+
+<div class="progress">
+
+<div
+id="progressBar"
+class="progress-bar">
+</div>
+
+</div>
+
+
+<div class="meta">
+
+<span id="subject"></span>
+
+<span id="topic"></span>
+
+<span id="difficulty"></span>
+
+<span id="pattern"></span>
+
+</div>
+
+
+<div
+id="question"
+class="question">
+</div>
+
+
+<div id="options"></div>
+
+
+<div
+id="explanation"
+class="explanation">
+</div>
+
+
+<div class="actions">
+
+<button
+class="secondary"
+onclick="previousQuestion()">
+← Previous
+</button>
+
+<button
+id="actionButton"
+class="primary"
+onclick="submitAnswer()">
+Submit Answer
+</button>
+
+</div>
+
+</div>
+
+
+<!-- PALETTE -->
+
+<div class="palette-card">
+
+<h3>Question Palette</h3>
+
+<p style="font-size:12px;color:#667085;">
+Click any question to jump.
+</p>
+
+<div
+id="palette"
+class="palette">
+</div>
+
+<br>
+
+<button
+class="danger"
+style="width:100%"
+onclick="finishQuiz()">
+Finish Test
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- RESULT -->
+
+<div
+id="resultCard"
+class="result-card hidden">
+
+<div class="result-title">
+
+<h2>🎯 Test Completed</h2>
+
+<div
+id="finalScore"
+class="result-score">
+0%
+</div>
+
+<p>Great work! Here is your performance.</p>
+
+</div>
+
+
+<div class="result-grid">
+
+<div class="result-box">
+
+<h2 id="resultTotal">0</h2>
+
+<p>Total</p>
+
+</div>
+
+<div class="result-box">
+
+<h2 id="resultCorrect">0</h2>
+
+<p>Correct</p>
+
+</div>
+
+<div class="result-box">
+
+<h2 id="resultWrong">0</h2>
+
+<p>Wrong</p>
+
+</div>
+
+<div class="result-box">
+
+<h2 id="resultSkipped">0</h2>
+
+<p>Skipped</p>
+
+</div>
+
+<div class="result-box">
+
+<h2 id="resultAvg">00:00</h2>
+
+<p>Avg. Time</p>
+
+</div>
+
+</div>
+
+
+<div style="text-align:center">
+
+<button
+class="primary"
+onclick="restartTest()">
+🔄 Start Again
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   GLOBAL VARIABLES
+========================================== */
+
+let questions = [];
+
+let currentQuestion = 0;
+
+let answers = [];
+
+let questionTimes = [];
+
+let questionStartTime = 0;
+
+let startTime = 0;
+
+let timerInterval = null;
+
+let score = 0;
+
+let correct = 0;
+
+let wrong = 0;
+
+let skipped = 0;
+
+let submitted = false;
+
+
+/* ==========================================
+   EXCEL UPLOAD
+========================================== */
+
+document
+.getElementById("excelFile")
+.addEventListener("change", function(e){
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event){
+
+try{
+
+const data =
+new Uint8Array(event.target.result);
+
+const workbook =
+XLSX.read(data,{type:"array"});
+
+const sheet =
+workbook.Sheets[
+workbook.SheetNames[0]
+];
+
+const rows =
+XLSX.utils.sheet_to_json(
+sheet,
+{defval:""}
+);
+
+questions =
+rows
+.map(normalizeQuestion)
+.filter(q =>
+q.question &&
+q.optionA &&
+q.optionB &&
+q.optionC &&
+q.optionD &&
+q.answer
+);
+
+if(!questions.length){
+
+showUploadError(
+"Questions could not be detected. Check your Excel format."
+);
+
+return;
+
+}
+
+document
+.getElementById("uploadCard")
+.classList.add("hidden");
+
+document
+.getElementById("quizArea")
+.classList.remove("hidden");
+
+startQuiz();
+
+}
+catch(error){
+
+console.error(error);
+
+showUploadError(
+"Excel file read error."
+);
+
+}
+
+};
+
+reader.readAsArrayBuffer(file);
+
+});
+
+
+/* ==========================================
+   NORMALIZE QUESTION
+========================================== */
+
+function normalizeQuestion(row){
+
+return {
+
+question:getValue(row,
+[
+"Question",
+"question",
+"Question Text",
+"MCQ"
+]),
+
+optionA:getValue(row,
+[
+"Option A",
+"option a",
+"A"
+]),
+
+optionB:getValue(row,
+[
+"Option B",
+"option b",
+"B"
+]),
+
+optionC:getValue(row,
+[
+"Option C",
+"option c",
+"C"
+]),
+
+optionD:getValue(row,
+[
+"Option D",
+"option d",
+"D"
+]),
+
+answer:getValue(row,
+[
+"Answer",
+"answer",
+"Correct Answer",
+"Correct"
+])
+.trim()
+.toUpperCase(),
+
+subject:getValue(row,
+[
+"Subject",
+"subject"
+]),
+
+topic:getValue(row,
+[
+"Topic",
+"topic"
+]),
+
+difficulty:getValue(row,
+[
+"Difficulty",
+"Level"
+]),
+
+pattern:getValue(row,
+[
+"Pattern",
+"Question Pattern",
+"Type"
+]),
+
+explanation:getValue(row,
+[
+"Explanation",
+"Solution"
+])
+
+};
+
+}
+
+
+/* ==========================================
+   GET VALUE
+========================================== */
+
+function getValue(row,names){
+
+const keys =
+Object.keys(row);
+
+for(const name of names){
+
+const key =
+keys.find(k =>
+k.trim()
+.toLowerCase()
+===
+name.trim().toLowerCase()
+);
+
+if(key !== undefined){
+
+return String(
+row[key] ?? ""
+).trim();
+
+}
+
+}
+
+return "";
+
+}
+
+
+/* ==========================================
+   START QUIZ
+========================================== */
+
+function startQuiz(){
+
+currentQuestion = 0;
+
+score = 0;
+
+correct = 0;
+
+wrong = 0;
+
+skipped = 0;
+
+answers =
+new Array(questions.length)
+.fill(null);
+
+questionTimes =
+new Array(questions.length)
+.fill(0);
+
+startTime =
+Date.now();
+
+questionStartTime =
+Date.now();
+
+timerInterval =
+setInterval(updateTimer,1000);
+
+buildPalette();
+
+showQuestion();
+
+}
+
+
+/* ==========================================
+   SHOW QUESTION
+========================================== */
+
+function showQuestion(){
+
+const q =
+questions[currentQuestion];
+
+submitted =
+answers[currentQuestion] !== null;
+
+document.getElementById("qNumber")
+.innerText =
+`Question ${currentQuestion+1} / ${questions.length}`;
+
+document.getElementById("question")
+.innerText =
+q.question;
+
+document.getElementById("subject")
+.innerText =
+q.subject || "Subject";
+
+document.getElementById("topic")
+.innerText =
+q.topic || "Topic";
+
+document.getElementById("difficulty")
+.innerText =
+q.difficulty || "Normal";
+
+document.getElementById("pattern")
+.innerText =
+q.pattern || "MCQ";
+
+const options =
+[
+["A",q.optionA],
+["B",q.optionB],
+["C",q.optionC],
+["D",q.optionD]
+];
+
+const container =
+document.getElementById("options");
+
+container.innerHTML = "";
+
+options.forEach(item => {
+
+const div =
+document.createElement("div");
+
+div.className = "option";
+
+if(
+answers[currentQuestion] === item[0]
+){
+div.classList.add("selected");
+}
+
+div.innerHTML = `
+<span class="option-letter">
+${item[0]}
+</span>
+
+<span>
+${escapeHtml(item[1])}
+</span>
+`;
+
+div.onclick = () => {
+
+if(submitted) return;
+
+selectAnswer(item[0]);
+
+};
+
+container.appendChild(div);
+
+});
+
+
+if(submitted){
+
+showAnswer();
+
+}
+else{
+
+document.getElementById("explanation")
+.style.display = "none";
+
+document.getElementById("actionButton")
+.innerText =
+"Submit Answer";
+
+}
+
+updateProgress();
+
+}
+
+
+/* ==========================================
+   SELECT ANSWER
+========================================== */
+
+function selectAnswer(answer){
+
+answers[currentQuestion] =
+answer;
+
+const options =
+document.querySelectorAll(".option");
+
+options.forEach(o =>
+o.classList.remove("selected")
+);
+
+const index =
+["A","B","C","D"]
+.indexOf(answer);
+
+if(options[index]){
+options[index]
+.classList.add("selected");
+}
+
+}
+
+
+/* ==========================================
+   SUBMIT ANSWER
+========================================== */
+
+function submitAnswer(){
+
+if(submitted){
+
+if(
+currentQuestion
+===
+questions.length-1
+){
+
+finishQuiz();
+
+}
+else{
+
+moveNext();
+
+}
+
+return;
+
+}
+
+if(!answers[currentQuestion]){
+
+alert(
+"Please select an answer first."
+);
+
+return;
+
+}
+
+
+/* SAVE QUESTION TIME */
+
+questionTimes[currentQuestion] +=
+Math.floor(
+(Date.now()-questionStartTime)/1000
+);
+
+submitted = true;
+
+showAnswer();
+
+calculateScore();
+
+}
+
+
+/* ==========================================
+   SHOW ANSWER
+========================================== */
+
+function showAnswer(){
+
+const q =
+questions[currentQuestion];
+
+const options =
+document.querySelectorAll(".option");
+
+const correctIndex =
+["A","B","C","D"]
+.indexOf(q.answer);
+
+if(options[correctIndex]){
+
+options[correctIndex]
+.classList.add("correct");
+
+}
+
+if(
+answers[currentQuestion]
+&&
+answers[currentQuestion]
+!== q.answer
+){
+
+const wrongIndex =
+["A","B","C","D"]
+.indexOf(
+answers[currentQuestion]
+);
+
+if(options[wrongIndex]){
+
+options[wrongIndex]
+.classList.add("wrong");
+
+}
+
+}
+
+
+if(q.explanation){
+
+const explanation =
+document.getElementById(
+"explanation"
+);
+
+explanation.innerHTML =
+`
+<strong>Explanation</strong><br>
+${escapeHtml(q.explanation)}
+`;
+
+explanation.style.display =
+"block";
+
+}
+
+
+document.getElementById(
+"actionButton"
+).innerText =
+
+currentQuestion
+===
+questions.length-1
+
+? "Finish Test ✓"
+: "Next Question →";
+
+}
+
+
+/* ==========================================
+   SCORE
+========================================== */
+
+function calculateScore(){
+
+score = 0;
+
+correct = 0;
+
+wrong = 0;
+
+skipped = 0;
+
+answers.forEach((answer,index)=>{
+
+if(!answer){
+
+skipped++;
+
+return;
+
+}
+
+if(
+answer
+===
+questions[index].answer
+){
+
+correct++;
+
+score++;
+
+}
+else{
+
+wrong++;
+
+}
+
+});
+
+document.getElementById("score")
+.innerText = score;
+
+updatePalette();
+
+}
+
+
+/* ==========================================
+   NEXT
+========================================== */
+
+function moveNext(){
+
+if(
+currentQuestion
+<
+questions.length-1
+){
+
+currentQuestion++;
+
+questionStartTime =
+Date.now();
+
+showQuestion();
+
+}
+else{
+
+finishQuiz();
+
+}
+
+}
+
+
+/* ==========================================
+   PREVIOUS
+========================================== */
+
+function previousQuestion(){
+
+if(currentQuestion <= 0)
+return;
+
+questionTimes[currentQuestion] +=
+Math.floor(
+(Date.now()-questionStartTime)/1000
+);
+
+currentQuestion--;
+
+questionStartTime =
+Date.now();
+
+showQuestion();
+
+}
+
+
+/* ==========================================
+   TIMER
+========================================== */
+
+function updateTimer(){
+
+const elapsed =
+Math.floor(
+(Date.now()-startTime)/1000
+);
+
+document.getElementById("elapsed")
+.innerText =
+formatTime(elapsed);
+
+
+/* Average time */
+
+let answeredCount =
+answers.filter(a=>a!==null).length;
+
+let totalTime =
+questionTimes.reduce(
+(a,b)=>a+b,
+0
+);
+
+if(answeredCount > 0){
+
+document.getElementById("avgTime")
+.innerText =
+formatTime(
+Math.floor(
+totalTime/answeredCount
+)
+);
+
+}
+
+
+/* Current question time */
+
+const currentTime =
+Math.floor(
+(Date.now()-questionStartTime)/1000
+);
+
+document.getElementById(
+"questionTime"
+)
+.innerText =
+formatTime(currentTime);
+
+}
+
+
+/* ==========================================
+   PROGRESS
+========================================== */
+
+function updateProgress(){
+
+const percent =
+(
+(currentQuestion+1)
+/
+questions.length
+)
+*100;
+
+document.getElementById(
+"progressBar"
+)
+.style.width =
+percent+"%";
+
+}
+
+
+/* ==========================================
+   PALETTE
+========================================== */
+
+function buildPalette(){
+
+const palette =
+document.getElementById(
+"palette"
+);
+
+palette.innerHTML = "";
+
+questions.forEach((q,index)=>{
+
+const button =
+document.createElement("button");
+
+button.innerText =
+index+1;
+
+button.onclick = ()=>{
+
+currentQuestion = index;
+
+questionStartTime =
+Date.now();
+
+showQuestion();
+
+};
+
+palette.appendChild(button);
+
+});
+
+}
+
+
+/* ==========================================
+   UPDATE PALETTE
+========================================== */
+
+function updatePalette(){
+
+const buttons =
+document.querySelectorAll(
+"#palette button"
+);
+
+buttons.forEach((button,index)=>{
+
+button.className = "";
+
+if(index === currentQuestion){
+
+button.classList.add("current");
+
+}
+
+if(answers[index]){
+
+if(
+answers[index]
+===
+questions[index].answer
+){
+
+button.classList.add("correct");
+
+}
+else{
+
+button.classList.add("wrong");
+
+}
+
+}
+
+});
+
+}
+
+
+/* ==========================================
+   FINISH
+========================================== */
+
+function finishQuiz(){
+
+clearInterval(
+timerInterval
+);
+
+calculateScore();
+
+
+const total =
+questions.length;
+
+const percentage =
+total
+?
+(correct/total)*100
+:
+0;
+
+const totalTime =
+Math.floor(
+(Date.now()-startTime)/1000
+);
+
+const avg =
+correct+wrong
+?
+Math.floor(
+questionTimes.reduce(
+(a,b)=>a+b,0
+) /
+(correct+wrong)
+)
+:
+0;
+
+
+/* RESULT */
+
+document
+.getElementById("quizArea")
+.classList.add("hidden");
+
+document
+.getElementById("resultCard")
+.classList.remove("hidden");
+
+document
+.getElementById("finalScore")
+.innerText =
+percentage.toFixed(1)+"%";
+
+document
+.getElementById("resultTotal")
+.innerText =
+total;
+
+document
+.getElementById("resultCorrect")
+.innerText =
+correct;
+
+document
+.getElementById("resultWrong")
+.innerText =
+wrong;
+
+document
+.getElementById("resultSkipped")
+.innerText =
+skipped;
+
+document
+.getElementById("resultAvg")
+.innerText =
+formatTime(avg);
+
+}
+
+
+/* ==========================================
+   RESTART
+========================================== */
+
+function restartTest(){
+
+clearInterval(
+timerInterval
+);
+
+document
+.getElementById("resultCard")
+.classList.add("hidden");
+
+document
+.getElementById("quizArea")
+.classList.remove("hidden");
+
+startQuiz();
+
+}
+
+
+/* ==========================================
+   FORMAT TIME
+========================================== */
+
+function formatTime(seconds){
+
+const min =
+Math.floor(seconds/60);
+
+const sec =
+seconds%60;
+
+return String(min)
+.padStart(2,"0")
++
+":"
++
+String(sec)
+.padStart(2,"0");
+
+}
+
+
+/* ==========================================
+   ERROR
+========================================== */
+
+function showUploadError(message){
+
+const status =
+document.getElementById(
+"uploadStatus"
+);
+
+status.innerText =
+message;
+
+status.style.color =
+"#b91c1c";
+
+status.style.marginTop =
+"15px";
+
+}
+
+
+/* ==========================================
+   ESCAPE
+========================================== */
+
+function escapeHtml(text){
+
+return String(text || "")
+
+.replace(/&/g,"&amp;")
+
+.replace(/</g,"&lt;")
+
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
